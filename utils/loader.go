@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"practice_01/model"
@@ -14,8 +13,6 @@ func LoadData(path string) model.Data {
 	if err != nil {
 		log.Fatalf("Error reading data file: %v", err)
 	}
-
-	fmt.Println(bytes)
 
 	var data model.Data
 	if err := json.Unmarshal(bytes, &data); err != nil {

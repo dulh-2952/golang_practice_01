@@ -11,36 +11,36 @@ import (
 )
 
 func printClassASC(data model.Data) {
-	sort.Slice(data.Class, func(i, j int) bool {
-		return data.Class[i].Name < data.Class[j].Name
+	sort.Slice(data.Classes, func(i, j int) bool {
+		return data.Classes[i].Name < data.Classes[j].Name
 	})
-	for _, c := range data.Class {
+	for _, c := range data.Classes {
 		tName := ""
-		for _, t := range data.Teacher {
+		for _, t := range data.Teachers {
 			if t.ID == c.HomeroomTeacherID {
 				tName = t.Name
 				break
 			}
 		}
-		fmt.Printf("Class: %s | Name: %s | Homeroom Teacher: %s\n", c.ID, c.Name, tName)
+		fmt.Printf("ID: %d | Tên: %s | GVCN: %s\n", c.ID, c.Name, tName)
 	}
 }
 
 func printStudentDESC(data model.Data) {
-	sort.Slice(data.Student, func(i, j int) bool {
-		return data.Student[i].Name > data.Student[j].Name
+	sort.Slice(data.Students, func(i, j int) bool {
+		return data.Students[i].Name > data.Students[j].Name
 	})
-	for _, s := range data.Student {
-		fmt.Printf("ID: %s | Name: %s | Address: %s\n", s.ID, s.Name, s.Address)
+	for _, s := range data.Students {
+		fmt.Printf("ID: %d | Tên: %s | Địa chỉ: %s\n", s.ID, s.Name, s.Address)
 	}
 }
 
-func printStudentClasses(data model.Data, studentID string) {
-	for _, sc := range data.StudentClass {
+func printStudentClasses(data model.Data, studentID int) {
+	for _, sc := range data.StudentClasses {
 		if sc.StudentID == studentID {
-			for _, class := range data.Class {
+			for _, class := range data.Classes {
 				if class.ID == sc.ClassID {
-					fmt.Printf("Class ID: %s | Name: %s\n", class.ID, class.Name)
+					fmt.Printf("ID: %d | Tên: %s\n", class.ID, class.Name)
 				}
 			}
 		}
@@ -48,48 +48,76 @@ func printStudentClasses(data model.Data, studentID string) {
 }
 
 func printTeacherFilter(data model.Data) {
-	fmt.Println("Chọn filter:")
-	fmt.Println("1. all")
-	fmt.Println("2. chủ nhiệm")
-	fmt.Println("3. có trên X học sinh")
-	fmt.Println("4. chủ nhiệm trên X lớp")
-	fmt.Print("Chọn: ")
-	var filter int
-	fmt.Scanln(&filter)
+	for {
 
-	switch filter {
-	case 1:
-		for _, t := range data.Teacher {
-			fmt.Printf("Teacher ID: %s | Name: %s\n", t.ID, t.Name)
-		}
-	case 2:
-		for _, t := range data.Teacher {
-			for _, c := range data.Class {
-				if c.HomeroomTeacherID == t.ID {
-					fmt.Printf("Chủ nhiệm: %s\n", t.Name)
-					break
+		filter := utils.PrintTeacherFilterMenu()
+
+		switch filter {
+		case 1:
+			for _, t := range data.Teachers {
+				fmt.Printf("ID: %d | Tên: %s | Địa chỉ: %s\n", t.ID, t.Name, t.Address)
+			}
+
+		case 2:
+			fmt.Println("Giáo viên là chủ nhiệm:")
+			for _, t := range data.Teachers {
+				for _, c := range data.Classes {
+					if c.HomeroomTeacherID == t.ID {
+						fmt.Printf("- %s\n", t.Name)
+						break
+					}
 				}
 			}
+
+		case 3:
+			x := utils.PromptInt("Nhập số học sinh tối thiểu (X): ")
+
+			teacherStudentCount := make(map[int]int)
+
+			for _, class := range data.Classes {
+				for _, sc := range data.StudentClasses {
+					if sc.ClassID == class.ID {
+						teacherStudentCount[class.HomeroomTeacherID]++
+					}
+				}
+			}
+
+			fmt.Printf("Giáo viên chủ nhiệm có trên %d học sinh:\n", x)
+			for _, t := range data.Teachers {
+				if count := teacherStudentCount[t.ID]; count > x {
+					fmt.Printf("- %s (%d học sinh)\n", t.Name, count)
+				}
+			}
+
+		case 4:
+			x := utils.PromptInt("Nhập số lớp tối thiểu (X): ")
+
+			teacherClassCount := make(map[int]int)
+			for _, class := range data.Classes {
+				teacherClassCount[class.HomeroomTeacherID]++
+			}
+
+			fmt.Printf("Giáo viên chủ nhiệm trên %d lớp:\n", x)
+			for _, t := range data.Teachers {
+				if count := teacherClassCount[t.ID]; count > x {
+					fmt.Printf("- %s (%d lớp)\n", t.Name, count)
+				}
+			}
+
+		case 5:
+			fmt.Println("✅ Thoát filter.")
+			return
+
+		default:
+			fmt.Println("❌ Lựa chọn không hợp lệ. Vui lòng chọn từ 1 đến 5.")
 		}
-	default:
-		fmt.Println("Chức năng đang phát triển.")
 	}
 }
 
 func main() {
 	data := utils.LoadData("./seed/data.json")
-	fmt.Println(data)
 	for {
-		fmt.Println("\n=== MENU ===")
-		fmt.Println("1. Danh sách lớp sort theo name ASC")
-		fmt.Println("2. Danh sách học sinh sort theo name DESC")
-		fmt.Println("3. Danh sách lớp học sinh X đã tham gia")
-		fmt.Println("4. Danh sách giáo viên với filter")
-		fmt.Println("0. Thoát")
-		fmt.Print("Chọn: ")
-
-		var choice int
-		fmt.Scanln(&choice)
+		choice := utils.PrintMenu()
 
 		switch choice {
 		case 1:
@@ -97,9 +125,7 @@ func main() {
 		case 2:
 			printStudentDESC(data)
 		case 3:
-			var id string
-			fmt.Print("Nhập student_id: ")
-			fmt.Scanln(&id)
+			id := utils.PromptInt("Nhập student_id: ")
 			printStudentClasses(data, id)
 		case 4:
 			printTeacherFilter(data)
