@@ -1,51 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"os"
-	"sort"
-
 	"practice_01/model"
-
 	"practice_01/utils"
 )
-
-func printClassASC(data model.Data) {
-	sort.Slice(data.Classes, func(i, j int) bool {
-		return data.Classes[i].Name < data.Classes[j].Name
-	})
-	for _, c := range data.Classes {
-		tName := ""
-		for _, t := range data.Teachers {
-			if t.ID == c.HomeroomTeacherID {
-				tName = t.Name
-				break
-			}
-		}
-		fmt.Printf("ID: %d | Tên: %s | GVCN: %s\n", c.ID, c.Name, tName)
-	}
-}
-
-func printStudentDESC(data model.Data) {
-	sort.Slice(data.Students, func(i, j int) bool {
-		return data.Students[i].Name > data.Students[j].Name
-	})
-	for _, s := range data.Students {
-		fmt.Printf("ID: %d | Tên: %s | Địa chỉ: %s\n", s.ID, s.Name, s.Address)
-	}
-}
-
-func printStudentClasses(data model.Data, studentID int) {
-	for _, sc := range data.StudentClasses {
-		if sc.StudentID == studentID {
-			for _, class := range data.Classes {
-				if class.ID == sc.ClassID {
-					fmt.Printf("ID: %d | Tên: %s\n", class.ID, class.Name)
-				}
-			}
-		}
-	}
-}
 
 func printTeacherFilter(data model.Data) {
 	for {
@@ -114,19 +76,34 @@ func printTeacherFilter(data model.Data) {
 	}
 }
 
+func LoadData(path string) model.Data {
+	bytes, err := os.ReadFile(path)
+
+	if err != nil {
+		log.Fatalf("Error reading data file: %v", err)
+	}
+
+	var data model.Data
+	if err := json.Unmarshal(bytes, &data); err != nil {
+		log.Fatalf("Error unmarshaling data: %v", err)
+	}
+
+	return data
+}
+
 func main() {
-	data := utils.LoadData("./seed/data.json")
+	data := LoadData("./seed/data.json")
 	for {
 		choice := utils.PrintMenu()
 
 		switch choice {
 		case 1:
-			printClassASC(data)
+			data.PrintClass(utils.Asc, "Name")
 		case 2:
-			printStudentDESC(data)
+			data.PrintStudent(utils.Desc, "Name")
 		case 3:
 			id := utils.PromptInt("Nhập student_id: ")
-			printStudentClasses(data, id)
+			data.PrintClassesOfStudent(id)
 		case 4:
 			printTeacherFilter(data)
 		case 0:
