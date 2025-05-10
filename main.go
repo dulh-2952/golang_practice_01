@@ -6,72 +6,33 @@ import (
 	"log"
 	"os"
 	"practice_01/model"
+	printService "practice_01/service/print"
 	"practice_01/utils"
 )
 
-func printTeacherFilter(data model.Data) {
+func PrintTeacherFilter(d model.Data) {
 	for {
 
 		filter := utils.PrintTeacherFilterMenu()
 
 		switch filter {
 		case 1:
-			for _, t := range data.Teachers {
-				fmt.Printf("ID: %d | Tên: %s | Địa chỉ: %s\n", t.ID, t.Name, t.Address)
-			}
-
+			printService.PrintTeachers("Tất cả giáo viên", d.Teachers)
 		case 2:
-			fmt.Println("Giáo viên là chủ nhiệm:")
-			for _, t := range data.Teachers {
-				for _, c := range data.Classes {
-					if c.HomeroomTeacherID == t.ID {
-						fmt.Printf("- %s\n", t.Name)
-						break
-					}
-				}
-			}
-
+			printService.PrintTeachers("Giáo viên là chủ nhiệm:", d.FilterTeachersByHomeroom())
 		case 3:
 			x := utils.PromptInt("Nhập số học sinh tối thiểu (X): ")
-
-			teacherStudentCount := make(map[int]int)
-
-			for _, class := range data.Classes {
-				for _, sc := range data.StudentClasses {
-					if sc.ClassID == class.ID {
-						teacherStudentCount[class.HomeroomTeacherID]++
-					}
-				}
-			}
-
-			fmt.Printf("Giáo viên chủ nhiệm có trên %d học sinh:\n", x)
-			for _, t := range data.Teachers {
-				if count := teacherStudentCount[t.ID]; count > x {
-					fmt.Printf("- %s (%d học sinh)\n", t.Name, count)
-				}
-			}
-
+			title := fmt.Sprintf("Giáo viên chủ nhiệm có trên %d học sinh:", x)
+			printService.PrintTeachers(title, d.FilterTeacherByMinStudentCount(x))
 		case 4:
 			x := utils.PromptInt("Nhập số lớp tối thiểu (X): ")
-
-			teacherClassCount := make(map[int]int)
-			for _, class := range data.Classes {
-				teacherClassCount[class.HomeroomTeacherID]++
-			}
-
-			fmt.Printf("Giáo viên chủ nhiệm trên %d lớp:\n", x)
-			for _, t := range data.Teachers {
-				if count := teacherClassCount[t.ID]; count > x {
-					fmt.Printf("- %s (%d lớp)\n", t.Name, count)
-				}
-			}
-
+			title := fmt.Sprintf("Giáo viên chủ nhiệm trên %d lớp:", x)
+			printService.PrintTeachers(title, d.FilterTeacherByMinHomeroomClasses(x))
 		case 5:
 			fmt.Println("✅ Thoát filter.")
 			return
-
 		default:
-			fmt.Println("❌ Lựa chọn không hợp lệ. Vui lòng chọn từ 1 đến 5.")
+			fmt.Println("❌ Lựa chọn không hợp lệ. Vui lòng chọn từ 1 đến 5")
 		}
 	}
 }
@@ -85,27 +46,30 @@ func LoadData(path string) model.Data {
 
 	var data model.Data
 	if err := json.Unmarshal(bytes, &data); err != nil {
-		log.Fatalf("Error unmarshaling data: %v", err)
+		log.Fatalf("Error Unmarshal data: %v", err)
 	}
 
 	return data
 }
 
 func main() {
-	data := LoadData("./seed/data.json")
+	d := LoadData("./seed/data.json")
 	for {
 		choice := utils.PrintMenu()
 
 		switch choice {
 		case 1:
-			data.PrintClass(utils.Asc, "Name")
+			classes := utils.SortData(d.Classes, utils.Asc, "Name")
+			printService.PrintClassesRelation(classes, d.Teachers)
 		case 2:
-			data.PrintStudent(utils.Desc, "Name")
+			students := utils.SortData(d.Students, utils.Desc, "Name")
+			printService.PrintStudents(students)
 		case 3:
 			id := utils.PromptInt("Nhập student_id: ")
-			data.PrintClassesOfStudent(id)
+			classes := d.GetClassesOfStudent(id)
+			printService.PrintClassesOfStudent(id, classes)
 		case 4:
-			printTeacherFilter(data)
+			PrintTeacherFilter(d)
 		case 0:
 			os.Exit(0)
 		default:

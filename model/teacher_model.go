@@ -12,6 +12,6 @@ type ITeacher interface {
 	PrintTeacher()
 }
 
-func (t Teacher) PrintTeacherRelation() {
+func (t Teacher) PrintTeacher() {
 	fmt.Printf("ID: %d | Tên: %s | Địa chỉ: %s\n", t.ID, t.Name, t.Address)
 }
