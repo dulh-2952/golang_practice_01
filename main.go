@@ -10,10 +10,25 @@ import (
 	"practice_01/utils"
 )
 
+func LoadData(path string) model.Data {
+	bytes, err := os.ReadFile(path)
+
+	if err != nil {
+		log.Fatalf("Error reading data file: %v", err)
+	}
+
+	var data model.Data
+	if err := json.Unmarshal(bytes, &data); err != nil {
+		log.Fatalf("Error Unmarshal data: %v", err)
+	}
+
+	return data
+}
+
 func PrintTeacherFilter(d model.Data) {
 	for {
 
-		filter := utils.PrintTeacherFilterMenu()
+		filter := printService.PrintTeacherFilterMenu()
 
 		switch filter {
 		case 1:
@@ -37,25 +52,10 @@ func PrintTeacherFilter(d model.Data) {
 	}
 }
 
-func LoadData(path string) model.Data {
-	bytes, err := os.ReadFile(path)
-
-	if err != nil {
-		log.Fatalf("Error reading data file: %v", err)
-	}
-
-	var data model.Data
-	if err := json.Unmarshal(bytes, &data); err != nil {
-		log.Fatalf("Error Unmarshal data: %v", err)
-	}
-
-	return data
-}
-
 func main() {
 	d := LoadData("./seed/data.json")
 	for {
-		choice := utils.PrintMenu()
+		choice := printService.PrintMenu()
 
 		switch choice {
 		case 1:

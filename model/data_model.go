@@ -29,10 +29,6 @@ func (d Data) GetClassesOfStudent(studentID int) []Class {
 	return classes
 }
 
-func (d Data) GetAllTeacher() []Teacher {
-	return d.Teachers
-}
-
 func (d Data) FilterTeachersByHomeroom() []Teacher {
 	teacherMap := make(map[int]bool)
 	for _, class := range d.Classes {
