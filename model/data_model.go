@@ -65,7 +65,7 @@ func (d Data) FilterTeacherByMinStudentCount(min int) []Teacher {
 
 	var result []Teacher
 	for _, teacher := range d.Teachers {
-		if len(teacherStudentSet[teacher.ID]) > min {
+		if len(teacherStudentSet[teacher.ID]) >= min {
 			result = append(result, teacher)
 		}
 	}
@@ -80,7 +80,7 @@ func (d Data) FilterTeacherByMinHomeroomClasses(min int) []Teacher {
 
 	var result []Teacher
 	for _, teacher := range d.Teachers {
-		if teacherClassCount[teacher.ID] > min {
+		if teacherClassCount[teacher.ID] >= min {
 			result = append(result, teacher)
 		}
 	}
