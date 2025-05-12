@@ -9,9 +9,9 @@ type Student struct {
 }
 
 type IStudent interface {
-	PrintStudent()
+	ShowInfo()
 }
 
-func (s Student) PrintStudent() {
+func (s Student) ShowInfo() {
 	fmt.Printf("ID: %d | Tên: %s | Địa chỉ: %s\n", s.ID, s.Name, s.Address)
 }

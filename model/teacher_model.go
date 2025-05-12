@@ -9,9 +9,9 @@ type Teacher struct {
 }
 
 type ITeacher interface {
-	PrintTeacher()
+	ShowInfo()
 }
 
-func (t Teacher) PrintTeacher() {
+func (t Teacher) ShowInfo() {
 	fmt.Printf("ID: %d | Tên: %s | Địa chỉ: %s\n", t.ID, t.Name, t.Address)
 }

@@ -31,7 +31,7 @@ func PrintClassesRelation(classes []model.Class, teachers []model.Teacher) {
 	utils.WithLoading(func() {
 		fmt.Println("======= DANH SÁCH LỚP HỌC =======")
 		for _, c := range classes {
-			c.PrintClassRelation(teachers)
+			c.ShowClassRelation(teachers)
 		}
 	}, 1*time.Second)
 
@@ -41,7 +41,7 @@ func PrintStudents(students []model.Student) {
 	utils.WithLoading(func() {
 		fmt.Println("\n======= DANH SÁCH HỌC SINH =======")
 		for _, s := range students {
-			s.PrintStudent()
+			s.ShowInfo()
 		}
 	}, 1*time.Second)
 }
@@ -50,7 +50,7 @@ func PrintClassesOfStudent(studentID int, classes []model.Class) {
 	utils.WithLoading(func() {
 		fmt.Printf("======= Danh Sách Lớp Học Của Học Sinh - ID = %d =======\n", studentID)
 		for _, c := range classes {
-			c.PrintClass()
+			c.ShowClass()
 		}
 	}, 1*time.Second)
 }
@@ -59,7 +59,7 @@ func PrintTeachers(title string, teachers []model.Teacher) {
 	utils.WithLoading(func() {
 		fmt.Println("===", title, "===")
 		for _, t := range teachers {
-			fmt.Printf("ID: %d | Name: %s | Address: %s\n", t.ID, t.Name, t.Address)
+			t.ShowInfo()
 		}
 	}, 1*time.Second)
 
