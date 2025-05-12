@@ -46,21 +46,26 @@ func (d Data) FilterTeachersByHomeroom() []Teacher {
 
 func (d Data) FilterTeacherByMinStudentCount(min int) []Teacher {
 	// Map class_id -> []student_id
-	classStudentCount := make(map[int]int)
+	classToStudents := make(map[int][]int)
 	for _, sc := range d.StudentClasses {
-		classStudentCount[sc.ClassID]++
+		classToStudents[sc.ClassID] = append(classToStudents[sc.ClassID], sc.StudentID)
 	}
 
-	// Map teacher_id -> tổng số học sinh dạy
-	teacherStudentCount := make(map[int]int)
+	// Map teacher_id -> set[student_id] (dùng map như Set)
+	teacherStudentSet := make(map[int]map[int]struct{})
 	for _, class := range d.Classes {
-		studentCount := classStudentCount[class.ID]
-		teacherStudentCount[class.HomeroomTeacherID] += studentCount
+		teacherID := class.HomeroomTeacherID
+		if _, exists := teacherStudentSet[teacherID]; !exists {
+			teacherStudentSet[teacherID] = make(map[int]struct{})
+		}
+		for _, studentID := range classToStudents[class.ID] {
+			teacherStudentSet[teacherID][studentID] = struct{}{}
+		}
 	}
 
 	var result []Teacher
 	for _, teacher := range d.Teachers {
-		if teacherStudentCount[teacher.ID] > min {
+		if len(teacherStudentSet[teacher.ID]) > min {
 			result = append(result, teacher)
 		}
 	}
