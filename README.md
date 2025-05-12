@@ -4,13 +4,13 @@
 
 Xem video demo trên Youtube: [Link Demo](https://youtu.be/KBt9bPZeme4)
 
-Lưu ý có nhiều nội dung nhạy cảm từ 4 năm trước =.=
+*Lưu ý kênh youtube có nhiều nội dung nhạy cảm từ 4 năm trước =.=*
 
 ---
 
 ## 🚀 Hướng Dẫn Chạy
 
-- **Yêu cầu:** Golang version `go1.22.4`
+- **Yêu cầu:** cài Golang - version  `go1.22.4`
 - Clone dự án về máy và mở terminal tại thư mục project.
 
 ### 1. Seed Dữ Liệu

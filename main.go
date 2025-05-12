@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 	"practice_01/model"
-	printService "practice_01/service/print"
+	printService "practice_01/service"
 	"practice_01/utils"
 )
 
